@@ -6,33 +6,36 @@ import {
   SignOutButton,
   SignedIn,
   SignedOut,
+  useOrganization,
   useSession,
+  useUser,
 } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function Home() {
-  useSession();
+  const organization = useOrganization();
+  const user = useUser();
+
+  const orgId =
+    (organization.isLoaded && organization.organization?.id) ||
+    (user.isLoaded && user.user?.id);
 
   const saveFile = useMutation(api.files.createFile);
-  const files = useQuery(api.files.getFiles);
+  const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
+
+  console.log("files:", files);
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-4 pt-10">
-      <SignedOut>
-        <SignInButton mode="modal">
-          <Button variant="default">Sign in</Button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
-        <SignOutButton>
-          <Button variant="default">Sign out</Button>
-        </SignOutButton>
-      </SignedIn>
-
       <Button
         onClick={() => {
-          saveFile({ name: "Siemaneczko" });
+          if (!orgId) return;
+
+          saveFile({
+            name: "Siemaneczko",
+            orgId,
+          });
         }}
       >
         Save file

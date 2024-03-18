@@ -24,8 +24,6 @@ export default function Home() {
   const saveFile = useMutation(api.files.createFile);
   const files = useQuery(api.files.getFiles, orgId ? { orgId } : "skip");
 
-  console.log("files:", files);
-
   return (
     <main className="flex min-h-screen flex-col items-center gap-4 pt-10">
       <Button
